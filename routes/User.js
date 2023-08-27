@@ -8,7 +8,7 @@ const router=express.Router();
 // Define a route to handle the GET request
 router.get('/getAllusers', async(req,res)=>{
     try {
-        const query = `SELECT * FROM USERDB`;
+        const query = `select user_name from userdb;`;
         const result =await pool.query(query);
         const users=result.rows;
         console.log("users->",users)
@@ -20,17 +20,18 @@ router.get('/getAllusers', async(req,res)=>{
 });
 
 
+
 // Define a route to handle the POST request
 router.post('/postUser', async (req, res) => {
     try {
-        const { user_name, auth_measure, user_email, password, created_on, last_login } = req.body;
+        const { user_name, auth_measure,first_name, user_email, password, created_on, last_login,following,followers,post_ids } = req.body;
 
         const query = `
-            INSERT INTO USERDB (user_name, auth_measure, user_email, password, created_on, last_login)
-            VALUES ($1, $2, $3, $4, $5, $6)
+            INSERT INTO USERDB (user_name, auth_measure, first_name,user_email, password, created_on, last_login ,following,followers,post_ids)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
         `;
 
-        const values = [user_name, auth_measure, user_email, password, created_on, last_login];
+        const values = [user_name, auth_measure,first_name ,user_email, password, created_on, last_login,following,followers,post_ids];
 
         await pool.query(query, values);
 
@@ -40,6 +41,8 @@ router.post('/postUser', async (req, res) => {
         res.status(400).json({ error: 'An error occurred' });
     }
 });
+
+
 
 
 // Define a route to handle the DELETE request
@@ -60,5 +63,33 @@ router.delete('/deleteUser/:user_id', async (req, res) => {
         res.status(400).json({ error: 'An error occurred' });
     }
 });
+
+
+
+
+// Define a route to handle the verify user request(login)
+router.post('/verifyUser/', async (req, res) => {
+    try {
+        const {user_name,password} = req.body;
+
+            
+        const query = `
+            select user_id,user_name,auth_measure,user_email,created_on,
+            last_login,first_name,following,followers,post_ids from userdb 
+            where user_name= $1 and password= $2;
+        `;
+
+        const result = await pool.query(query, [user_name,password]);
+        console.log(result.rows[0])
+        
+            res.status(200).json( result.rows[0] );
+        
+    } catch (error) {
+        console.error(error);
+        res.status(400).json({ error: 'An error occurred' });
+    }
+})
+
+
 
 module.exports=router;
