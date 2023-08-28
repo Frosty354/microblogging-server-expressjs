@@ -16,8 +16,11 @@ app.use(express.json());
 
 
 const userRoutes=require('./routes/User');
+const postRoutes=require('./routes/Posts');
 
 app.use('/users',userRoutes);
+app.use('/post',postRoutes)
+
 
 
 
