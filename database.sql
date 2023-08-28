@@ -13,3 +13,16 @@ CREATE TABLE USERDB (
         (auth_measure NOT IN ('google', 'github') AND password IS NOT NULL AND length(password) > 5)
     )
 );
+
+
+-- postdb
+CREATE TABLE postdb (
+    post_id serial PRIMARY KEY,
+    user_id integer REFERENCES userdb(user_id),
+    made_by VARCHAR(20) NOT NULL,
+    post_content TEXT NOT NULL CHECK (length(post_content) > 0),
+    reactions INTEGER[],
+    isParentPost boolean NOT NULL,
+    replies INTEGER[],
+    time_created TIMESTAMP NOT NULL
+);
