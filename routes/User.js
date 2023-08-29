@@ -22,20 +22,20 @@ router.get('/getAllusers', async(req,res)=>{
 
 
 // Define a route to handle the POST request
-router.post('/postUser', async (req, res) => {
+router.post('/createUser', async (req, res) => {
     try {
         const { user_name, auth_measure,first_name, user_email, password, created_on, last_login,following,followers,post_ids } = req.body;
 
         const query = `
             INSERT INTO USERDB (user_name, auth_measure, first_name,user_email, password, created_on, last_login ,following,followers,post_ids)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING USER_ID;
         `;
 
         const values = [user_name, auth_measure,first_name ,user_email, password, created_on, last_login,following,followers,post_ids];
 
-        await pool.query(query, values);
+        const result = await pool.query(query, values);
 
-        res.status(201).json({ message: 'User added successfully' });
+        res.status(201).json(result.rows[0]);
     } catch (error) {
         console.error(error);
         res.status(400).json({ error: 'An error occurred' });
