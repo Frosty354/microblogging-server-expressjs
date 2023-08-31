@@ -17,9 +17,11 @@ app.use(express.json());
 
 const userRoutes=require('./routes/User');
 const postRoutes=require('./routes/Posts');
+const replyRoutes=require('./routes/Replies');
 
 app.use('/users',userRoutes);
 app.use('/post',postRoutes)
+app.use('/reply',replyRoutes);
 
 
 
