@@ -1,12 +1,13 @@
 const express=require('express');
 const pool = require('../db');
-
+const jwt = require('jsonwebtoken');
 const router=express.Router();
+const {jwtMiddleware}=require('../middleware/jwtMiddleware');
 
-
+const secret="Red#$Dead@&Redemoto67";
 
 // Define a route to handle the GET request
-router.get('/getAllusers/:user_id', async(req,res)=>{
+router.get('/getAllusers/:user_id',jwtMiddleware, async(req,res)=>{
     try {
         const{user_id}=req.params;
         const query = `select user_name,first_name from userdb where user_id!=$1;`;
@@ -23,7 +24,7 @@ router.get('/getAllusers/:user_id', async(req,res)=>{
 
 
 // Define a route to handle the POST request
-router.post('/createUser', async (req, res) => {
+router.post('/createUser',jwtMiddleware, async (req, res) => {
     try {
         const { user_name, auth_measure,first_name, user_email, password, created_on, last_login } = req.body;
 
@@ -47,7 +48,7 @@ router.post('/createUser', async (req, res) => {
 
 
 // Define a route to handle the DELETE request
-router.delete('/deleteUser/:user_id', async (req, res) => {
+router.delete('/deleteUser/:user_id',jwtMiddleware, async (req, res) => {
     try {
         const userId = req.params.user_id;
         console.log(userId)
@@ -86,7 +87,17 @@ router.post('/verifyUser/', async (req, res) => {
             const result = await pool.query(query, [user_name, password]);
 
             if (result.rows.length > 0) {
-                res.status(200).json(result.rows[0]);
+                const user = result.rows[0];
+                const token = jwt.sign(user, secret);
+                res.cookie('authToken', token, {
+                    httpOnly: true,
+                    // secure: true, // Set to true for HTTPS
+                    sameSite: 'None', // Set to "None" for cross-site access
+                    maxAge: 2 * 60 * 60 * 1000, // Token expires in 2 hours (adjust as needed)
+                    expires: new Date(Date.now() + 2 * 60 * 60 * 1000), // Expires 2 hours from now
+                    });
+                console.log(token)
+                res.status(200).json(user);
             } else {
                 res.status(401).json({ error: "Invalid credentials" });
             }

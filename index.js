@@ -1,6 +1,9 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const pool =require("./db");
+const cookieParser = require('cookie-parser');
+const jwt = require('jsonwebtoken');
+const secret="Red#$Dead@&Redemoto67";
 
 const app = express();
 const cors = require('cors');
@@ -13,7 +16,7 @@ app.use(cors({
 
 const port = process.env.PORT || 3654; // Change to your desired port
 app.use(express.json());
-
+app.use(cookieParser());
 
 const userRoutes=require('./routes/User');
 const postRoutes=require('./routes/Posts');
